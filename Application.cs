@@ -15,14 +15,14 @@ namespace ResharperIntern
         private string _inputFilePath;
         private Input _input;
         private SynchronizedFilesBuffer _synchronizedFilesBuffer = new SynchronizedFilesBuffer();
-        private List<Task> _fileWorkers = new List<Task>();
-        private List<Worker> _workers = new List<Worker>();
-        private Dictionary<string, char> fileDelimiter = new Dictionary<string, char>();
-
+        private List<Task> _fileWorkers;
+        private Dictionary<string, FileFormat> _filesProperties = new Dictionary<string, FileFormat>();
+        private Dictionary<FileFormat, int> output = new Dictionary<FileFormat, int>();
 
         Application(string inputFilePath)
         {
             _inputFilePath = inputFilePath;
+            _fileWorkers = new List<Task>();
         }
 
         private void SetInputFile()
@@ -44,7 +44,7 @@ namespace ResharperIntern
             }
         }
 
-        private void PickFilesToProcessAsync()
+        private void  PickFilesToProcess()
         {
             while (this._synchronizedFilesBuffer._filesBufffer.IsEmpty == false)
             {
@@ -52,11 +52,12 @@ namespace ResharperIntern
                 
                 var worker = new Worker(fileToProcess);
 
-                _fileWorkers.Add(Task.Run(() => this.fileDelimiter[fileToProcess] = worker.DetermineDelimiter() ));
+                this._fileWorkers.Add(Task.Run(() => {
+                    this._filesProperties[fileToProcess] = worker.ProcessFile();
+                }));
                 
             }
-          
-
+            Task.WaitAll(this._fileWorkers.ToArray());
         }
 
         private bool FitsMask(string fileName, string fileMask)
@@ -79,29 +80,51 @@ namespace ResharperIntern
                 .Any(fileMask => FitsMask(fileName, fileMask));
         }
 
-        
+        private void WriteOutputToFile(string filePath)
+        {
+            using (System.IO.StreamWriter file =
+            new System.IO.StreamWriter(filePath))
+            {
+                foreach (var fileFormatStructure in this.output)
+                {
+                    file.WriteLine("The file structure is: ");
+                    foreach (var cols in fileFormatStructure.Key._fileStructure)
+                    {
+                        file.Write(cols.Key + " " + cols.Value + " ");
+                    }
+
+                    file.WriteLine();
+                    file.WriteLine("The file format is: ");
+                    file.WriteLine("The file delimiter: " + fileFormatStructure.Key._fileDelimiter);
+                    file.WriteLine("The digital separator: " + fileFormatStructure.Key._floatsDelimiter);
+                    file.WriteLine("The thousand separator: " + fileFormatStructure.Key._thousandDelimiter);
+                    file.WriteLine("The date format: " + fileFormatStructure.Key._dateFormat);
+                    file.WriteLine();
+                    file.WriteLine("The number of files with this frequency found is: " + fileFormatStructure.Value);
+                }
+            }
+        }
+
 
         static void Main(string[] args)
         {
  
-            Application myApp = new Application(@"D:\lucru\Resharper_Intern_problem\ResharperIntern\input.txt");
+            Application myApp = new Application(@"input.txt");
 
             myApp.SetInputFile();
 
             myApp._input = new Input(myApp._inputFile);
 
             myApp._input.FormatInputData();
-
-            var tasks = new List<Task>();
-
+            
             myApp.GetMatchingFiles(myApp._input.GetMasks(), myApp._input.GetDirectory());
                         
-            myApp.PickFilesToProcessAsync();
+            myApp.PickFilesToProcess();
 
-            Task.WaitAll(myApp._fileWorkers.ToArray());
+            string outputFilePath = @"output.txt";
 
-            Console.WriteLine("done");
-            Console.Read();
+            myApp.WriteOutputToFile(outputFilePath);
+            
         }
     }
 }

@@ -9,9 +9,9 @@ namespace ResharperIntern
     class FileFormat
     {
         public char _fileDelimiter;
-        public char _floatsDelimter;
-        public char _thousandDelimiter;
+        public string _floatsDelimiter;
+        public string _thousandDelimiter;
         public string _dateFormat;
-        public Dictionary<string, string> _fileStructure;
+        public Dictionary<string, string> _fileStructure = new Dictionary<string, string>();
     }
 }

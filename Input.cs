@@ -21,12 +21,9 @@ namespace ResharperIntern
             using (StreamReader sr = new StreamReader(_inputFile))
             {
                 string s;
-                /**
-                 * assuring that input file is not empty
-                 */
+                
                 if ((s = sr.ReadLine()) != null)
                 {
-                    //Console.WriteLine(s);
 
                     String[] separators = { " " };
                     String[] inputList = s.Split(separators, int.MaxValue, StringSplitOptions.RemoveEmptyEntries);
@@ -41,8 +38,7 @@ namespace ResharperIntern
                     _outputFilePath = inputList[inputList.Length - 1];
                     
                 }
-                //Console.Read();
-
+               
             }
         }
 
