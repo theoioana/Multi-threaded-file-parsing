@@ -13,5 +13,6 @@ namespace ResharperIntern
         public string _thousandDelimiter;
         public string _dateFormat;
         public Dictionary<string, string> _fileStructure = new Dictionary<string, string>();
+        public string _filePath;
     }
 }

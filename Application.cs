@@ -32,14 +32,14 @@ namespace ResharperIntern
 
         private void GetMatchingFiles(String masks, String directory)
         {
-            //Console.WriteLine("in get matching files");
+            Console.WriteLine("in get matching files");
             foreach (string file in Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories))
             {
-                //Console.WriteLine(file);
+                Console.WriteLine(file);
                 if (FitsOneOfMultipleMasks(file, masks))
                 {
                     this._synchronizedFilesBuffer.Write(file);
-                    //Console.WriteLine(file + " was written in buffer");
+                    Console.WriteLine(file + " was written in buffer");
                 }
             }
         }
@@ -82,25 +82,36 @@ namespace ResharperIntern
 
         private void WriteOutputToFile(string filePath)
         {
+            foreach(var fileformat in this._filesProperties)
+            {
+                if (output.ContainsKey(fileformat.Value)) 
+                {
+                    output[fileformat.Value]++;
+                }
+                else
+                {
+                    output.Add(fileformat.Value, 0);
+                }
+            }
+
             using (System.IO.StreamWriter file =
             new System.IO.StreamWriter(filePath))
             {
                 foreach (var fileFormatStructure in this.output)
                 {
-                    file.WriteLine("The file structure is: ");
+                    file.WriteLine("The structure of file " + fileFormatStructure.Key._filePath + " is:");
                     foreach (var cols in fileFormatStructure.Key._fileStructure)
                     {
-                        file.Write(cols.Key + " " + cols.Value + " ");
+                        file.Write(cols.Key + ": " + cols.Value + " ");
                     }
 
                     file.WriteLine();
-                    file.WriteLine("The file format is: ");
-                    file.WriteLine("The file delimiter: " + fileFormatStructure.Key._fileDelimiter);
-                    file.WriteLine("The digital separator: " + fileFormatStructure.Key._floatsDelimiter);
-                    file.WriteLine("The thousand separator: " + fileFormatStructure.Key._thousandDelimiter);
+                    file.WriteLine("The file delimiter: " +  fileFormatStructure.Key._fileDelimiter.Equals('\t') ? "tab" : fileFormatStructure.Key._fileDelimiter.ToString());
                     file.WriteLine("The date format: " + fileFormatStructure.Key._dateFormat);
+
                     file.WriteLine();
-                    file.WriteLine("The number of files with this frequency found is: " + fileFormatStructure.Value);
+                    file.WriteLine();
+
                 }
             }
         }

@@ -15,6 +15,7 @@ namespace ResharperIntern
         public Worker(string fileToProcess)
         {
             _filePath = fileToProcess;
+            this._fileFormat._filePath = fileToProcess;
         }
         
         public FileFormat ProcessFile()
@@ -173,9 +174,6 @@ namespace ResharperIntern
                         
                     }
                 }
-
-                    
-                    
             }
 
             _fileFormat._thousandDelimiter = foundDelimiter.ToString(); 
@@ -348,8 +346,8 @@ namespace ResharperIntern
 
                     columnCounter = result.Length;
 
-                    //Console.WriteLine("for file " + _filePath + " counter is " + columnCounter + " for " + possibleDelimiters[index]);
-                    //Console.Read();
+                    Console.WriteLine("for file " + _filePath + " counter is " + columnCounter + " for " + possibleDelimiters[index]);
+                    Console.Read();
                 }
 
                 bool ok = true;
